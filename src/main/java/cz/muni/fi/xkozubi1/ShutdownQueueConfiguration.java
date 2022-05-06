@@ -4,11 +4,18 @@ import hudson.Extension;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+import org.jfree.ui.about.SystemProperties;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 /**
@@ -28,7 +35,13 @@ public class ShutdownQueueConfiguration extends GlobalConfiguration {
 
     public ShutdownQueueConfiguration() {
         load();
-        setDefaultValues();
+        //if there is no existing plugin configuration file, config values are set to default
+        File folder = new File(System.getProperty("JENKINS_HOME"));
+        if (folder.exists()) {
+            if (Arrays.stream(folder.listFiles()).noneMatch(file -> file.getName().endsWith("ShutdownQueueConfiguration.xml"))) {
+                setDefaultValues();
+            }
+        }
     }
 
     public boolean getPluginOn() {
